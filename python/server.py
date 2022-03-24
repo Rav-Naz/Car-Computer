@@ -1,21 +1,16 @@
-# Importing the relevant libraries
-import websockets, os, asyncio, threading, obd 
+# importing the relevant libraries
+import websockets, asyncio, threading, obd, json
 from datetime import datetime
 
-# Server data
-delay = 500 #ms
-PORT = 7890
-debug_inputs = 0
-max_debug_inputs = 20
-debug_mode = True
-debug_file_list = []
-debug_file_list2 = []
-supported_commands = []
-
-# search for debug files
-for file in os.listdir("debug_data"):
-    if file.endswith(".txt"):
-        debug_file_list.append(open("debug_data/" + str(file), 'r+'))
+# server data
+delay = 500 # interval of refresh car info (in ms)
+PORT = 7890 # server port
+debug_mode = True # running mode
+debug_file_path = "E:/debug_data.txt" # path to file with debug data
+debug_max_inputs = 100 # maximum count of data rows in debug file
+debug_position = 0 # current line of debug file
+supported_commands = [] # list of supported commands by this car
+connection = None # declaration of connection to bluetooth OBD
 
 # initialize car data
 json_data = {
@@ -23,6 +18,7 @@ json_data = {
 }
 
 def reveal_supported_pids(bitarray, chunk="A"):
+    # serach for supported commands in this car
     iterator = 0
     offset = 0
     if chunk == "B":
@@ -35,22 +31,21 @@ def reveal_supported_pids(bitarray, chunk="A"):
             supported_command = obd.commands[1][iterator+offset]
             supported_commands.append(supported_command)
 
-def get_file_name(file):
-    # return name of given file without extension 
-    return str(file.name).split('/')[-1].split('.')[0]
-
 def get_debug_data():
     # read line of each file and send data
-    threading.Timer(delay/1000, get_debug_data).start()
-    for file in debug_file_list:
-        line = file.readline()
-        if line != '':
-            json_data[get_file_name(file)] = int(str(line))
-        else:
-            file.seek(0)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(send_json_data())
+    global json_data
+    global debug_position
+    global delay
+    threading.Timer(delay/1000, get_debug_data).start() # sends debug data every n seconds
+    with open(debug_file_path, 'r+') as file_object:
+        lines = file_object.readlines()
+        temp_last_send = json_data["last_send"]
+        json_data = json.loads(lines[debug_position%len(lines)])
+        debug_position=debug_position%len(lines)+1
+        json_data["last_send"] = temp_last_send
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(send_json_data())
 
 def new_async_value(response):
     # manage new value from OBD2
@@ -62,56 +57,37 @@ def new_async_value(response):
 
 async def send_json_data():
     # send new data to all clients
-    global max_debug_inputs
-    global debug_inputs
+    global debug_max_inputs
+    # firewall to prevent too frequent sending of data
     last_send_time = datetime.strptime(json_data["last_send"], '%Y-%m-%d %H:%M:%S.%f')
     time_diff_milis = (datetime.now() - last_send_time).total_seconds() * 1000
-    if time_diff_milis > delay:
-        for conn in connected:
+    if time_diff_milis > delay: # if last send data is longer than a specified delay
+        json_data["last_send"] = str(datetime.now())
+        for conn in connected: # for every connected client
             await conn.send(str(json_data))
             print("sended: ", json_data)
-        json_data["last_send"] = str(datetime.now())
-        # if not debug_mode and debug_inputs < max_debug_inputs:
-        #     for key in json_data.keys():
-        #         if key != 'last_send':
-        #             found = False
-        #             file = None
-        #             for debug_file in debug_file_list2:
-        #                 if get_file_name(debug_file) == key:
-        #                     found = True
-        #                     file = debug_file
-        #                     break
-        #             if not found:
-        #                 file = open("debug_data/" + str(key) + ".txt", 'w+')#debug_file_list.append()
-        #                 debug_file_list2.append(file)
-        #             file.write(str(json_data[key])+'\n')
-        #         else:
-        #             debug_inputs += 1
-        # elif debug_inputs == max_debug_inputs:
-        #     debug_inputs += 4
-        #     print("closing")
-        #     for debug_file in debug_file_list2:
-        #         debug_file.close()
+        if not debug_mode: # save data to debug data
+            with open(debug_file_path, "r+") as file_object:
+                debug_lines_count = len(file_object.readlines())
+                if debug_lines_count < debug_max_inputs:
+                    temp_json = json_data.copy()
+                    temp_json.pop("last_send", None)
+                    file_object.write(json.dumps(temp_json) + str('\n'))
                         
-# A set of connected ws clients
-connected = set()
+connected = set() # set of connected ws clients
 
-# The main behavior function for this server
+# main function for this server
 async def echo(websocket, path):
     print("A client just connected")
-    # Store a copy of the connected client
-    connected.add(websocket)
+    connected.add(websocket) # Store a copy of the connected client
     await send_json_data()
-    # Handle incoming messages
-    try:
+    try: # Handle incoming messages
         async for message in websocket:
             print("Received message from client: " + message)
-            # Send a response to all connected clients except sender
-            for conn in connected:
+            for conn in connected: # Send a response to all connected clients except sender
                 if conn != websocket:
                     await conn.send("Someone said: " + message)
-    # Handle disconnecting clients 
-    except websockets.exceptions.ConnectionClosed as e:
+    except websockets.exceptions.ConnectionClosed as e: # Handle disconnecting clients
         print("A client just disconnected")
     finally:
         connected.remove(websocket)
@@ -121,10 +97,12 @@ if debug_mode:
     get_debug_data()
 else:
     print("Car mode")
-    #check commands that car support
+    open(debug_file_path, 'w').close()
+    # connect to car by bt serial adapter
     connection = obd.Async(portstr="/dev/rfcomm99", fast=False, timeout=30, baudrate=38400) # same constructor as 'obd.OBD()'
     while not connection.is_connected():
         connection = obd.Async(portstr="/dev/rfcomm99", fast=False, timeout=30, baudrate=38400) # same constructor as 'obd.OBD()'
+    #check commands that car support
     for chunk in ["A","B","C"]:
         #check support via OBD
         bitarray = "11111111111111111111111111111110"
