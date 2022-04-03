@@ -7,7 +7,7 @@ delay = 500 # interval of refresh car info (in ms)
 PORT = 7890 # server port
 debug_mode = True # running mode
 read_debug_file = "/2022-04-02/20-20-26.txt"
-base_debug_file_path = "/media/rafal/CC/debug_data" # path to file with debug data
+base_debug_file_path = "/media/rafal/CC/debug_data" if os.uname().sysname == "Linux" else "E:/debug_data" # path to file with debug data
 save_debug_file_path = base_debug_file_path # path to file with debug data
 if not os.path.isdir(save_debug_file_path):
     os.mkdir(save_debug_file_path)
