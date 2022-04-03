@@ -6,7 +6,8 @@ obd.logger.setLevel(obd.logging.DEBUG)
 delay = 500 # interval of refresh car info (in ms)
 PORT = 7890 # server port
 debug_mode = True # running mode
-read_debug_file = "/2022-04-02/20-20-26.txt"
+#### DEBUG CONFIG ####
+read_debug_file = "/2022-04-03/12-48-38.txt"
 base_debug_file_path = "/media/rafal/CC/debug_data" if os.uname().sysname == "Linux" else "E:/debug_data" # path to file with debug data
 save_debug_file_path = base_debug_file_path # path to file with debug data
 if not os.path.isdir(save_debug_file_path):
@@ -17,6 +18,7 @@ if not os.path.isdir(save_debug_file_path):
 save_debug_file_path+="/"+str(datetime.now())[11:19].replace(':',"-")+".txt"
 debug_max_inputs = 600 # maximum count of data rows in debug file
 debug_position = 0 # current line of debug file
+#######################
 connection = None # declaration of connection to bluetooth OBD
 whitelist_commands = [ # watched commands (more on: https://python-obd.readthedocs.io/en/latest/Command%20Tables/)
     obd.commands.RPM,
@@ -108,7 +110,8 @@ else:
         time.sleep(1)
         connection = obd.Async(portstr="/dev/rfcomm99", baudrate="9600", fast=False, timeout="10", check_voltage=False, protocol="6") # same constructor as 'obd.OBD()'
     print("CONNECTED!")
-    print("Supported commands: ${connection.supported_commands}")
+    print("Supported commands:")
+    print(connection.supported_commands)
     for command in whitelist_commands:
         if connection.supports(command):
             connection.watch(command, callback=new_async_value)
