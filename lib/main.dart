@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
+import 'dart:convert';
 
 void main() {
   runApp(const MyApp());
@@ -58,9 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    channel.stream.listen((event) { 
-      print(event);
-    });
     super.initState();
   }
 
@@ -92,12 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: StreamBuilder(
-        stream: channel.stream,
-        builder: (context, snapshot) {
-          return Text(snapshot.hasData ? '${snapshot.data}' : '');
-        },
-      ),
+        child:StreamBuilder(
+  stream: channel.stream,
+  builder: (context, snapshot) {
+    return Text(snapshot.hasData ? '${jsonDecode(snapshot.data.toString().replaceAll("'", "\""))['engine_rpm']}' : '', style: TextStyle(fontSize: 100.0),);
+  },
+)
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,

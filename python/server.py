@@ -1,35 +1,36 @@
 # importing the relevant libraries
-import websockets, asyncio, threading, obd, json
+import websockets, asyncio, threading, obd, json, time, os
 from datetime import datetime
-
+obd.logger.setLevel(obd.logging.DEBUG)
 # server data
 delay = 500 # interval of refresh car info (in ms)
 PORT = 7890 # server port
 debug_mode = True # running mode
-debug_file_path = "E:/debug_data.txt" # path to file with debug data
-debug_max_inputs = 100 # maximum count of data rows in debug file
+read_debug_file = "/2022-04-02/20-20-26.txt"
+base_debug_file_path = "/media/rafal/CC/debug_data" # path to file with debug data
+save_debug_file_path = base_debug_file_path # path to file with debug data
+if not os.path.isdir(save_debug_file_path):
+    os.mkdir(save_debug_file_path)
+save_debug_file_path+="/"+str(datetime.now())[:10]
+if not os.path.isdir(save_debug_file_path):
+    os.mkdir(save_debug_file_path)
+save_debug_file_path+="/"+str(datetime.now())[11:19].replace(':',"-")+".txt"
+debug_max_inputs = 600 # maximum count of data rows in debug file
 debug_position = 0 # current line of debug file
-supported_commands = [] # list of supported commands by this car
 connection = None # declaration of connection to bluetooth OBD
+whitelist_commands = [ # watched commands (more on: https://python-obd.readthedocs.io/en/latest/Command%20Tables/)
+    obd.commands.RPM,
+    obd.commands.SPEED,
+    obd.commands.THROTTLE_POS,
+    obd.commands.COOLANT_TEMP,
+    obd.commands.ELM_VOLTAGE,
+    obd.commands.GET_DTC
+]
 
 # initialize car data
 json_data = {
     "last_send": str(datetime.now())
 }
-
-def reveal_supported_pids(bitarray, chunk="A"):
-    # serach for supported commands in this car
-    iterator = 0
-    offset = 0
-    if chunk == "B":
-        offset = 32
-    elif chunk == "C":
-        offset = 64
-    for bit_index in range(len(bitarray) - (1 if chunk == "C" else 0)):
-        iterator += 1
-        if bitarray[bit_index] == "1":
-            supported_command = obd.commands[1][iterator+offset]
-            supported_commands.append(supported_command)
 
 def get_debug_data():
     # read line of each file and send data
@@ -37,7 +38,7 @@ def get_debug_data():
     global debug_position
     global delay
     threading.Timer(delay/1000, get_debug_data).start() # sends debug data every n seconds
-    with open(debug_file_path, 'r+') as file_object:
+    with open(base_debug_file_path + read_debug_file, 'r+') as file_object:
         lines = file_object.readlines()
         temp_last_send = json_data["last_send"]
         json_data = json.loads(lines[debug_position%len(lines)])
@@ -50,7 +51,7 @@ def get_debug_data():
 def new_async_value(response):
     # manage new value from OBD2
     if not response.is_null():
-        json_data[response.command] = response.value.magnitude
+        json_data[str(response.command)[9:].strip().replace(" ","_").lower()] = response.value.magnitude if (str(type(response.value)) == "<class 'pint.unit.build_quantity_class.<locals>.Quantity'>") else str(response.value)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(send_json_data())
@@ -67,7 +68,7 @@ async def send_json_data():
             await conn.send(str(json_data))
             print("sended: ", json_data)
         if not debug_mode: # save data to debug data
-            with open(debug_file_path, "r+") as file_object:
+            with open(save_debug_file_path, "r+") as file_object:
                 debug_lines_count = len(file_object.readlines())
                 if debug_lines_count < debug_max_inputs:
                     temp_json = json_data.copy()
@@ -92,25 +93,25 @@ async def echo(websocket, path):
     finally:
         connected.remove(websocket)
 
+####### MAIN #######
+
 if debug_mode:
     print("Debug mode")
     get_debug_data()
 else:
     print("Car mode")
-    open(debug_file_path, 'w').close()
-    # connect to car by bt serial adapter
-    connection = obd.Async(portstr="/dev/rfcomm99", fast=False, timeout=30, baudrate=38400) # same constructor as 'obd.OBD()'
-    while not connection.is_connected():
-        connection = obd.Async(portstr="/dev/rfcomm99", fast=False, timeout=30, baudrate=38400) # same constructor as 'obd.OBD()'
-    #check commands that car support
-    for chunk in ["A","B","C"]:
-        #check support via OBD
-        bitarray = "11111111111111111111111111111110"
-        reveal_supported_pids(bitarray,chunk)
-        if bitarray[-1] == "0":
-            break
-    for command in supported_commands:
-        connection.watch(command, callback=new_async_value)
+    open(save_debug_file_path, 'w').close()
+    # connect to car by BT serial adapter
+    print("Waiting for connection...")
+    connection = obd.Async(portstr="/dev/rfcomm99", baudrate="9600", fast=False, timeout="10", check_voltage=False, protocol="6") # same constructor as 'obd.OBD()'
+    while(len(connection.supported_commands) < 10):
+        time.sleep(1)
+        connection = obd.Async(portstr="/dev/rfcomm99", baudrate="9600", fast=False, timeout="10", check_voltage=False, protocol="6") # same constructor as 'obd.OBD()'
+    print("CONNECTED!")
+    print("Supported commands: ${connection.supported_commands}")
+    for command in whitelist_commands:
+        if connection.supports(command):
+            connection.watch(command, callback=new_async_value)
     connection.start()
 
 # Start the server
