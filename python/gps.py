@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
+# sudo chmod 666 /dev/ttyUSB2
+# wystawic antene gps za okno
 import serial
 import time
 
@@ -42,7 +44,7 @@ def readSerial():
 	if rec_buff != '':
 		message = rec_buff.decode()
 		if "+CGPSINFO:" in message:
-			NMEAToLongLat(message)
+				NMEAToLongLat(message)
 
 try:
 	print('SIM7600X is starting:')
