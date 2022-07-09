@@ -21,7 +21,7 @@ PORT = 7890  # server port
 debug_mode = True  # running mode
 #### DEBUG CONFIG ####
 read_debug_file = "/2022-04-03/12-48-38.txt"
-base_debug_file_path = "/media/rafal/CC/debug_data" if platform.platform() == "Linux" else "E:/debug_data"  # path to file with debug data
+base_debug_file_path = "/media/rafal/CC/debug_data" if "Linux" in platform.platform() else "E:/debug_data"  # path to file with debug data
 save_debug_file_path = base_debug_file_path  # path to file with debug data
 if not os.path.isdir(save_debug_file_path):
     os.mkdir(save_debug_file_path)
@@ -46,11 +46,14 @@ rec_buff = ''
 # Azure Cosmos DB coniguration
 dotenv_path = Path(base_debug_file_path+'/.env')
 load_dotenv(dotenv_path=dotenv_path)
-endpoint = "https://car-computer.documents.azure.com:443/"
-key = 'g1FR9jGmrycfRgGNP3OZDSL7075vG4g4Au3VqW5qzoUcXKmUIkDRQVJq17qZLZrZnMTH56DN1jP7yGOzB0c8zg=='
-database_name = 'car-domputer-db'
-container_name = 'geolocation'
+endpoint = os.getenv('COSMOSDB_ENDPOINT')
+key = os.getenv('COSMOSDB_KEY')
+database_name = os.getenv('COSMOSDB_NAME')
+container_name = os.getenv('COSMOSDB_CONTAINER_NAME')
 system_unique_id = "0000000000000000"
+client = None
+database = None
+container = None
 
 # initialize car data
 json_data = {
@@ -75,6 +78,19 @@ def send_at(command, back, timeout):
         print('GPS is not ready')
         return 0
 
+def get_rpi_serial():
+    global system_unique_id
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo','r')
+        for line in f:
+            if line[0:6]=='Serial':
+                cpuserial = line[10:26]
+                system_unique_id = cpuserial
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+        system_unique_id = cpuserial
 
 def nmea_to_long_lat(char_buffer):
     parts = str(char_buffer)[13:].split(",")
@@ -82,8 +98,8 @@ def nmea_to_long_lat(char_buffer):
         parts[0][:2]) + (float(parts[0][2:])/60) * (1 if "N" in parts[1] else -1), 6)
     longitude = round(float(
         parts[2][:3]) + (float(parts[2][3:])/60) * (1 if "E" in parts[3] else -1), 6)
-    json_data["latitude"] = latitude
-    json_data["longitude"] = longitude
+    json_data["latitude"] = str(latitude)
+    json_data["longitude"] = str(longitude)
     # print(f"lat: {latitude}, long: {longitude}, meters: {meters_above_sea}")
 
 
@@ -93,62 +109,44 @@ def read_serial():
         rec_buff = ser.read(ser.inWaiting())
     if rec_buff != '':
         message = rec_buff.decode()
-        if "+CGPSINFO:" in message:
+        if "+CGPSINFO:" in message and len(message) > 20:
             nmea_to_long_lat(message)
 
 
-def get_system_id():
-    global system_unique_id
-    try:
-        f = open('/proc/cpuinfo', 'r')
-        for line in f:
-            if line[0:6] == 'Serial':
-                system_unique_id = line[10:26]
-        f.close()
-    except:
-        system_unique_id = "ERROR000000000"
-
-
 def initialize_db_connection():
-    get_system_id()
-    try:
-        global client, database, container
-        client = CosmosClient(endpoint, key)
-        database = client.create_database_if_not_exists(id=database_name)
-        container = database.create_container_if_not_exists(
-            id=container_name,
-            partition_key=PartitionKey(path="/id"),
-            offer_throughput=400
-        )
-
-    except Exception as err:
-        if "Failed to establish a new connection" in str(err):
-            print("Cannot initialize connection to DB")
+    global client, database, container
+    client = CosmosClient(endpoint, key)
+    database = client.create_database_if_not_exists(id=database_name)
+    container = database.create_container_if_not_exists(
+        id=container_name,
+        partition_key=PartitionKey(path="/id"),
+        offer_throughput=400
+    )
+    print("DB connection estabilished")
 
 
 def send_geolocalization_info():
-    if "longitude" in json_data and "latitude" in json_data:
-        now = datetime.datetime.now()
+    global container
+    if "longitude" in json_data.keys() and "latitude" in json_data.keys() and container is not None:
+        now = datetime.now()
         geolocation = {
             "id": str(uuid.uuid4()),
             "date": str(now.strftime("%d-%m-%Y")),
             "time": str(now.strftime("%H:%M:%S.%f")),
-            "user-id": get_system_id(),
-            "latitude": "50.23233N",
-            "longitude": "22.112344E",
+            "user-id": system_unique_id,
+            "latitude": json_data["latitude"],
+            "longitude": json_data["longitude"],
         }
+        print(geolocation)
         try:
             container.create_item(body=geolocation)
         except Exception as err:
-            if "Failed to establish a new connection" in str(err):
-                print("Lost connection to DB")
+            print(err)
 
 
 def get_debug_data():
     # read line of each file and send data
-    global json_data
-    global debug_position
-    global delay
+    global json_data, debug_position, delay
     # sends debug data every n seconds
     threading.Timer(delay/1000, get_debug_data).start()
     with open(base_debug_file_path + read_debug_file, 'r+') as file_object:
@@ -175,18 +173,19 @@ def new_async_value(response):
 async def send_json_data():
     # send new data to all clients
     global debug_max_inputs
+    iterations = 0
     # firewall to prevent too frequent sending of data
     last_send_time = datetime.strptime(
         json_data["last_send"], '%Y-%m-%d %H:%M:%S.%f')
     time_diff_milis = (datetime.now() - last_send_time).total_seconds() * 1000
     if time_diff_milis > delay:  # if last send data is longer than a specified delay
         json_data["last_send"] = str(datetime.now())
-        if not debug_mode:
+        if debug_mode:
             read_serial()
             send_geolocalization_info()
         for conn in connected:  # for every connected client
             await conn.send(str(json_data))
-            print("sended: ", json_data)
+            # print("sended: ", json_data)
         if not debug_mode:  # save data to debug data
             with open(save_debug_file_path, "r+") as file_object:
                 debug_lines_count = len(file_object.readlines())
@@ -217,20 +216,20 @@ async def echo(websocket, path):
 
 ####### MAIN #######
 try:
-    print('SIM7600X is starting:')
     ser.flushInput()
     print('Start GPS session...')
     send_at('AT+CGPS=1,1', 'OK', 1)
     time.sleep(2)
     send_at('AT+CGPSINFO=1', '+CGPSINFO: ', 1)
     time.sleep(1)
+    initialize_db_connection()
     if debug_mode:
         print("Debug mode")
         get_debug_data()
+        get_rpi_serial()
     else:
         print("Car mode")
         open(save_debug_file_path, 'w').close()
-        initialize_db_connection()
         # connect to car by BT serial adapter
         print("Waiting for connection...")
         connection = obd.Async(portstr="/dev/rfcomm99", baudrate="9600", fast=False,

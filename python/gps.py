@@ -44,7 +44,8 @@ def readSerial():
 	if rec_buff != '':
 		message = rec_buff.decode()
 		if "+CGPSINFO:" in message:
-				NMEAToLongLat(message)
+    			print(message)
+				# NMEAToLongLat(message)
 
 try:
 	print('SIM7600X is starting:')
