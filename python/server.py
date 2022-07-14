@@ -20,7 +20,7 @@ delay = 500  # interval of refresh car info (in ms)
 PORT = 7890  # server port
 debug_mode = True  # running mode
 #### DEBUG CONFIG ####
-read_debug_file = "/2022-04-03/12-48-38.txt"
+read_debug_file = "/2022-07-09/18-46-46.txt"
 base_debug_file_path = "/media/rafal/CC/debug_data" if "Linux" in platform.platform() else "E:/debug_data"  # path to file with debug data
 save_debug_file_path = base_debug_file_path  # path to file with debug data
 if not os.path.isdir(save_debug_file_path):
@@ -40,7 +40,7 @@ whitelist_commands = [  # watched commands (more on: https://python-obd.readthed
     obd.commands.GET_DTC
 ]
 # GPS configuration
-ser = serial.Serial('/dev/ttyUSB2', 115200)
+ser = None if debug_mode else serial.Serial('/dev/ttyUSB2', 115200)
 rec_buff = ''
 
 # Azure Cosmos DB coniguration
@@ -137,7 +137,6 @@ def send_geolocalization_info():
             "latitude": json_data["latitude"],
             "longitude": json_data["longitude"],
         }
-        print(geolocation)
         try:
             container.create_item(body=geolocation)
         except Exception as err:
@@ -180,7 +179,7 @@ async def send_json_data():
     time_diff_milis = (datetime.now() - last_send_time).total_seconds() * 1000
     if time_diff_milis > delay:  # if last send data is longer than a specified delay
         json_data["last_send"] = str(datetime.now())
-        if debug_mode:
+        if not debug_mode:
             read_serial()
             send_geolocalization_info()
         for conn in connected:  # for every connected client
@@ -216,19 +215,19 @@ async def echo(websocket, path):
 
 ####### MAIN #######
 try:
-    ser.flushInput()
-    print('Start GPS session...')
-    send_at('AT+CGPS=1,1', 'OK', 1)
-    time.sleep(2)
-    send_at('AT+CGPSINFO=1', '+CGPSINFO: ', 1)
-    time.sleep(1)
-    initialize_db_connection()
     if debug_mode:
         print("Debug mode")
         get_debug_data()
-        get_rpi_serial()
     else:
         print("Car mode")
+        ser.flushInput()
+        print('Start GPS session...')
+        send_at('AT+CGPS=1,1', 'OK', 1)
+        time.sleep(2)
+        send_at('AT+CGPSINFO=1', '+CGPSINFO: ', 1)
+        time.sleep(1)
+        get_rpi_serial()
+        initialize_db_connection()
         open(save_debug_file_path, 'w').close()
         # connect to car by BT serial adapter
         print("Waiting for connection...")
