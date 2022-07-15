@@ -1,6 +1,9 @@
+import 'package:car_computer/providers/car_info_provider.dart';
+import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
 import 'package:car_computer/widgets/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'dart:convert';
@@ -14,10 +17,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Car Computer',
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CarInfoProvider()),
+        ChangeNotifierProvider(create: (context) => UiProvider()),
+      ],
+      child: const MaterialApp(
+        title: 'Car Computer',
+        debugShowCheckedModeBanner: false,
+        home: MyHomePage(),
+      ),
     );
   }
 }

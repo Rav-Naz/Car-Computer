@@ -1,6 +1,9 @@
+import 'package:car_computer/providers/car_info_provider.dart';
+import 'package:car_computer/providers/ui_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class CarView extends StatefulWidget {
   const CarView({Key? key}) : super(key: key);
@@ -20,150 +23,183 @@ class _CarView extends State<CarView> {
 
   @override
   Widget build(BuildContext context) {
+    var uiProvider = Provider.of<UiProvider>(context);
     return Container(
-        // height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width * 0.25,
-        constraints: const BoxConstraints(minWidth: 300.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SliderContainerWidget(
-              color: Colors.red,
-              icon: Icons.add_task,
-              top: true,
-              value1: "N",
-              value2: "806",
-            ),
-            Expanded(
-                child: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: IndicatorLightWidget(iconList: [
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/check_engine.svg',
-                                colorOn: const Color.fromARGB(255, 250, 200, 36)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/abs.svg',
-                                colorOn: const Color.fromARGB(255, 250, 200, 36)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/door_open.svg',
-                                colorOn: const Color.fromARGB(255, 223, 4, 4)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/road_lights.svg',
-                                colorOn: const Color.fromARGB(255, 15, 62, 214)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/traffic_light.svg',
-                                colorOn: const Color.fromARGB(255, 69, 192, 12))
-                          ]),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: Column(
+      color: const Color.fromRGBO(65, 65, 65, 1),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 20),
+        child: Transform.scale(
+          scaleY: 1.001,
+          child: Container(
+              // height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width * 0.25,
+              constraints: const BoxConstraints(minWidth: 300.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SliderContainerWidget(
+                    color: uiProvider.accentColor,
+                    icon: Icons.add_task,
+                    top: true,
+                    value1: "N",
+                    value2: "806",
+                  ),
+                  Expanded(
+                      child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 15, 20, 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: const [
-                                  Text("0",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 40,
-                                          fontWeight: FontWeight.bold)),
-                                  Text("KM/H",
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600))
-                                ],
+                              Expanded(
+                                flex: 1,
+                                child: IndicatorLightWidget(iconList: [
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/check_engine.svg',
+                                      colorOn: const Color.fromARGB(255, 250, 200, 36)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/abs.svg',
+                                      colorOn: const Color.fromARGB(255, 250, 200, 36)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/door_open.svg',
+                                      colorOn: const Color.fromARGB(255, 223, 4, 4)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/road_lights.svg',
+                                      colorOn: const Color.fromARGB(255, 15, 62, 214)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/traffic_light.svg',
+                                      colorOn: const Color.fromARGB(255, 69, 192, 12))
+                                ]),
                               ),
-                              Expanded(child: const Image(image: AssetImage("assets/png/car.png",))
+                              Expanded(
+                                flex: 4,
+                                child: Column(
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Text("0",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 40,
+                                                fontWeight: FontWeight.bold)),
+                                        Text("KM/H",
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600))
+                                      ],
+                                    ),
+                                    Expanded(child: Container(
+                                      decoration: const BoxDecoration(),
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Transform.scale(
+                                        scale: 1.01,
+                                        child: ColorFiltered(
+                                          colorFilter: ColorFilter.mode(uiProvider.accentColor, BlendMode.hue),
+                                          child: Stack(
+                                            children: [
+                                              Container(color: const Color.fromRGBO(65, 65, 65, 1)),
+                                              const Center(child: Image(image: AssetImage("assets/png/car.png",))),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: IndicatorLightWidget(iconList: [
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/handbrake.svg',
+                                      colorOn: const Color.fromARGB(255, 223, 4, 4)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/triangle.svg',
+                                      colorOn: const Color.fromARGB(255, 250, 200, 36)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/coolant.svg',
+                                      colorOn:const Color.fromARGB(255, 15, 62, 214)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/accumulator.svg',
+                                      colorOn: const Color.fromARGB(255, 223, 4, 4)),
+                                  IndicatorLightIcon(
+                                      svgAssetPath: 'assets/svg/seat_bealt.svg',
+                                      colorOn: const Color.fromARGB(255, 223, 4, 4))
+                                ]),
                               )
                             ],
                           ),
                         ),
-                        Expanded(
-                          flex: 1,
-                          child: IndicatorLightWidget(iconList: [
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/handbrake.svg',
-                                colorOn: const Color.fromARGB(255, 223, 4, 4)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/triangle.svg',
-                                colorOn: const Color.fromARGB(255, 250, 200, 36)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/coolant.svg',
-                                colorOn:const Color.fromARGB(255, 15, 62, 214)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/accumulator.svg',
-                                colorOn: const Color.fromARGB(255, 223, 4, 4)),
-                            IndicatorLightIcon(
-                                svgAssetPath: 'assets/svg/seat_bealt.svg',
-                                colorOn: const Color.fromARGB(255, 223, 4, 4))
-                          ]),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BottomCarInfoWidget(
-                          description: "Śr. prędkość",
-                          value: "32",
-                          unit: "KM/H"),
-                      Container(
-                        color: Colors.grey.withOpacity(0.5),
-                        width: 0.5,
-                        height: 50,
                       ),
-                      BottomCarInfoWidget(
-                          description: "Pok. dystans",
-                          value: "4.0",
-                          unit: "KM"),
-                      Container(
-                        color: Colors.grey.withOpacity(0.5),
-                        width: 0.5,
-                        height: 50,
-                      ),
-                      BottomCarInfoWidget(
-                          description: "Czas jazdy",
-                          value: "00:08",
-                          unit: "GODZIN")
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const BottomCarInfoWidget(
+                                description: "Śr. prędkość",
+                                value: "32",
+                                unit: "KM/H"),
+                            Container(
+                              color: Colors.grey.withOpacity(0.5),
+                              width: 0.5,
+                              height: 50,
+                            ),
+                            const BottomCarInfoWidget(
+                                description: "Pok. dystans",
+                                value: "4.0",
+                                unit: "KM"),
+                            Container(
+                              color: Colors.grey.withOpacity(0.5),
+                              width: 0.5,
+                              height: 50,
+                            ),
+                            const BottomCarInfoWidget(
+                                description: "Czas jazdy",
+                                value: "00:08",
+                                unit: "GODZIN")
+                          ],
+                        ),
+                      )
                     ],
+                  )),
+                  SliderContainerWidget(
+                    color: uiProvider.accentColor,
+                    icon: Icons.add_task,
+                    top: false,
+                    value1: "45%",
                   ),
-                )
-              ],
-            )),
-            const SliderContainerWidget(
-              color: Colors.red,
-              icon: Icons.add_task,
-              top: false,
-              value1: "45%",
-            ),
-          ],
+                ],
+              ),
+              decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromARGB(255, 44, 44, 44),
+                    // offset: Offset(2, 0),
+                    blurRadius: 10,
+                    spreadRadius: 10
+                  )
+                ],
+                  gradient: LinearGradient(
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                      colors: [
+                    Color.fromRGBO(65, 65, 65, 1),
+                    Color.fromRGBO(48, 48, 48, 1)
+                  ],
+                      stops: [
+                    0.8,
+                    1
+                  ]))),
         ),
-        decoration: const BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [
-              Color.fromRGBO(65, 65, 65, 1),
-              Color.fromRGBO(48, 48, 48, 1)
-            ],
-                stops: [
-              0.5,
-              1
-            ])));
+      ),
+    );
   }
 }
 
@@ -257,9 +293,7 @@ class SliderContainerWidget extends StatelessWidget {
       quarterTurns: top ? 0 : 2,
       child: Container(
         clipBehavior: Clip.hardEdge,
-        // height: MediaQuery.of(context).size.height *R0.05,
         width: MediaQuery.of(context).size.width,
-        // constraints: const BoxConstraints(minHeight: 50),
         decoration: ShapeDecoration(
           color: Colors.black,
           shape: const SliderContainerWidgetBorderTop(),
@@ -278,7 +312,7 @@ class SliderContainerWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: listOfWidgetsInColumn(!top),
+              children: listOfWidgetsInColumn(context,!top),
             ),
           ),
         ),
@@ -286,7 +320,7 @@ class SliderContainerWidget extends StatelessWidget {
     );
   }
 
-  List<Widget> listOfWidgetsInColumn(bool isReversed) {
+  List<Widget> listOfWidgetsInColumn(context,bool isReversed) {
     var list = [
       Padding(
         padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
@@ -298,18 +332,19 @@ class SliderContainerWidget extends StatelessWidget {
                 visible: value2 != null,
                 child: Text(
                   value2 ?? "",
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 )),
-            Text(value1, style: TextStyle(color: Colors.white)),
+            Text(value1, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),
       Container(
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
             gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [Colors.red, Colors.grey],
+                colors: [Provider.of<UiProvider>(context).accentColor, Colors.grey],
                 stops: [0.6, 0.6])),
         height: 4,
       )

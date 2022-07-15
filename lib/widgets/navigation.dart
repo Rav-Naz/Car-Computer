@@ -8,9 +8,6 @@ class NavigationWidget extends StatefulWidget {
 }
 
 class _NavigationWidget extends State<NavigationWidget> {
-  // final channel = WebSocketChannel.connect(
-  //   Uri.parse('ws://localhost:7890'),
-  // );
   @override
   void initState() {
     super.initState();
