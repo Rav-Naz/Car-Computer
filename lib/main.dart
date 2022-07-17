@@ -1,8 +1,12 @@
 import 'package:car_computer/providers/car_info_provider.dart';
+import 'package:car_computer/providers/navigation_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
+import 'package:car_computer/views/home.dart';
+import 'package:car_computer/views/settings.dart';
 import 'package:car_computer/widgets/navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
@@ -21,8 +25,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => CarInfoProvider()),
         ChangeNotifierProvider(create: (context) => UiProvider()),
+        ChangeNotifierProvider(create: (context) => NavigationProvider()),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
         title: 'Car Computer',
         debugShowCheckedModeBanner: false,
         home: MyHomePage(),
@@ -32,70 +37,55 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
-  // @override
-  // State<MyHomePage> createState() => _MyHomePageState();
+  final List<NavigationItem> navigationItems = [
+    NavigationItem(icon: Icons.ondemand_video, view: const HomeView()),
+    NavigationItem(icon: Icons.hail, view: const SettingsView()),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color.fromRGBO(65, 65, 65, 1),
           body: Column(
         children: [
           Expanded(
             child: Row(
               children: [
                 const CarView(),
-                Expanded(child: Container(color: Colors.blue)),
+                Expanded(
+                  child: Column(
+                    children: [
+                      TopInfoBar(),
+                      Provider.of<NavigationProvider>(context).currentView
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          const NavigationWidget()
+          NavigationWidget(navigationItems: navigationItems)
         ],
       )),
     );
   }
 }
 
-// Center(
-//               child: StreamBuilder(
-//             stream: channel.stream,
-//             builder: (context, snapshot) {
-//               return Text(
-//                 snapshot.hasData
-//                     ? '${jsonDecode(snapshot.data.toString().replaceAll("'", "\""))['engine_rpm']}'
-//                     : '',
-//                 style: TextStyle(fontSize: 100.0),
-//               );
-//             },
-//           ))
+class TopInfoBar extends StatelessWidget{
 
-// class _MyHomePageState extends State<MyHomePage> {
-//   final channel = WebSocketChannel.connect(
-//     Uri.parse('ws://localhost:7890'),
-//   );
+  TopInfoBar();
 
-//   @override
-//   void initState() {
-//     super.initState();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Scaffold(
-//           body: Center(
-//               child: StreamBuilder(
-//             stream: channel.stream,
-//             builder: (context, snapshot) {
-//               return Text(
-//                 snapshot.hasData
-//                     ? '${jsonDecode(snapshot.data.toString().replaceAll("'", "\""))['engine_rpm']}'
-//                     : '',
-//                 style: TextStyle(fontSize: 100.0),
-//               );
-//             },
-//           ))),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
+        Text("19°C", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12),),
+        Text("09:44", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),),
+        SvgPicture.asset('assets/svg/telemetry_info.svg', height: 17,)
+      ]),
+    );
+  }
+}
