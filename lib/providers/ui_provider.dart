@@ -1,30 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 
 class UiProvider extends ChangeNotifier {
+
   var _accentColor = const Color.fromARGB(255, 219, 30, 16);
   late SharedPreferences _preferences;
-  Map<String,dynamic> _otherSettings = {
-          "accent_color": "ff4caf50",
-          "jednostka_miary": "Kilometry",
-          "jednostka_temperatury": "Celsjusz",
-          "marka_i_model_pojazdu": "Mitsubihi Lancer",
-          "rok_produkcji": "2009",
-          "rodzaj_paliwa": "Benzyna",
-          "moc_silnika": "360",
-          "pojemność_skokowa_silnika": "1998",
-          "maksymalne_obroty": "7000",
-          "data_ważności_przeglądu": "04-02-2023",
-        };
+  Map<String, dynamic> _otherSettings = {
+    "accent_color": "ff4caf50",
+    "jednostka_miary": "Kilometry",
+    "jednostka_temperatury": "Celsjusz",
+    "marka_i_model_pojazdu": "Mitsubihi Lancer",
+    "rok_produkcji": "2009",
+    "rodzaj_paliwa": "Benzyna",
+    "moc_silnika": "360",
+    "pojemność_skokowa_silnika": "1998",
+    "maksymalne_obroty": "7000",
+    "data_ważności_przeglądu": "04-02-2023",
+  };
 
   UiProvider() {
     SharedPreferences.getInstance().then((value) {
-      _preferences = value;      
+      _preferences = value;
       if (_preferences.containsKey("UiSettings")) {
         String string = _preferences.getString("UiSettings")!;
-        Map<String,dynamic> userMap = jsonDecode(string) as Map<String, dynamic>;
+        Map<String, dynamic> userMap =
+            jsonDecode(string) as Map<String, dynamic>;
         _otherSettings = userMap;
         _accentColor = _stringToColor(_otherSettings['accent_color']);
         notifyListeners();
@@ -64,7 +69,6 @@ class UiProvider extends ChangeNotifier {
   get accentColor {
     return _accentColor;
   }
-
 
   dynamic getSetting(String key) {
     return _otherSettings[key];

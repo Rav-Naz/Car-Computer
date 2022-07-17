@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class NavigationProvider extends ChangeNotifier {
 
-  dynamic _currentView = const SettingsView();
+  dynamic _currentView = const HomeView();
 
   NavigationProvider();
 

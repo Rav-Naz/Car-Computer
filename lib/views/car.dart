@@ -39,7 +39,7 @@ class _CarView extends State<CarView> {
                 children: [
                   SliderContainerWidget(
                     color: uiProvider.accentColor,
-                    icon: Icons.add_task,
+                    icon: Icons.speed,
                     top: true,
                     value1: "N",
                     value2: "806",
@@ -160,9 +160,9 @@ class _CarView extends State<CarView> {
                               width: 0.5,
                               height: 50,
                             ),
-                            const BottomCarInfoWidget(
+                            BottomCarInfoWidget(
                                 description: "Czas jazdy",
-                                value: "00:08",
+                                value: Provider.of<CarInfoProvider>(context).getTimeFromStartString,
                                 unit: "GODZIN")
                           ],
                         ),
@@ -171,7 +171,7 @@ class _CarView extends State<CarView> {
                   )),
                   SliderContainerWidget(
                     color: uiProvider.accentColor,
-                    icon: Icons.add_task,
+                    icon: Icons.local_gas_station,
                     top: false,
                     value1: "45%",
                   ),
@@ -255,17 +255,17 @@ class BottomCarInfoWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(description,
-            style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            style: const TextStyle(color: Colors.grey, fontSize: 10)),
         Padding(
             padding: const EdgeInsets.all(5),
             child: Text(value,
                 style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold))),
         Text(unit,
             style: const TextStyle(
-                color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600))
+                color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600))
       ],
     );
   }
@@ -332,9 +332,9 @@ class SliderContainerWidget extends StatelessWidget {
                 visible: value2 != null,
                 child: Text(
                   value2 ?? "",
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                 )),
-            Text(value1, style: const TextStyle(color: Colors.white)),
+            Text(value1, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

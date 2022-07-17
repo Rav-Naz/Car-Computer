@@ -3,6 +3,8 @@ import 'package:car_computer/providers/navigation_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
 import 'package:car_computer/views/home.dart';
+import 'package:car_computer/views/map.dart';
+import 'package:car_computer/views/music.dart';
 import 'package:car_computer/views/settings.dart';
 import 'package:car_computer/widgets/navigation.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Car Computer',
+        theme: ThemeData(fontFamily: 'Inter'),
         debugShowCheckedModeBanner: false,
         home: MyHomePage(),
       ),
@@ -40,8 +43,10 @@ class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
 
   final List<NavigationItem> navigationItems = [
-    NavigationItem(icon: Icons.ondemand_video, view: const HomeView()),
-    NavigationItem(icon: Icons.hail, view: const SettingsView()),
+    NavigationItem(icon: Icons.home, view: const HomeView()),
+    NavigationItem(icon: Icons.navigation, view: const MapView()),
+    NavigationItem(icon: Icons.music_note, view: const MusicView()),
+    NavigationItem(icon: Icons.settings, view: const SettingsView()),
   ];
 
   @override
@@ -83,8 +88,14 @@ class TopInfoBar extends StatelessWidget{
       padding: const EdgeInsets.all(8.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
         Text("19°C", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12),),
-        Text("09:44", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),),
-        SvgPicture.asset('assets/svg/telemetry_info.svg', height: 17,)
+        Text(Provider.of<CarInfoProvider>(context).getCurrentTimeString, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),),
+        Row(
+          children: const [
+            Icon(Icons.signal_cellular_alt, size: 15, color: Colors.grey,),
+            SizedBox(width: 10,),
+            Icon(Icons.bluetooth_connected, size: 15, color: Colors.grey,)
+          ],
+        )
       ]),
     );
   }

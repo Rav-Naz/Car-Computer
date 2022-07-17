@@ -213,12 +213,11 @@ class SettingsItemChooser extends StatelessWidget {
                               overlayColor: MaterialStateProperty.all(
                                   Colors.transparent)),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(15.0),
                             child: Text(
                               e,
-                              style: TextStyle(
-                                  color: Provider.of<UiProvider>(context)
-                                      .accentColor),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 15),
                             ),
                           ),
                           onPressed: () {
