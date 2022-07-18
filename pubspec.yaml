@@ -42,6 +42,9 @@ dependencies:
   intl: ^0.17.0
   flutter_map: ^2.0.0
   latlong2: ^0.8.1
+  just_audio: ^0.9.28
+  just_audio_windows: ^0.1.0
+  flutter_media_metadata: ^1.0.0+1
 dev_dependencies:
   flutter_test:
     sdk: flutter

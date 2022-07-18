@@ -66,7 +66,7 @@ class UiProvider extends ChangeNotifier {
     return Color(value);
   }
 
-  get accentColor {
+  Color get accentColor {
     return _accentColor;
   }
 

@@ -1,4 +1,5 @@
 import 'package:car_computer/providers/car_info_provider.dart';
+import 'package:car_computer/providers/music_provider.dart';
 import 'package:car_computer/providers/navigation_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
@@ -8,11 +9,8 @@ import 'package:car_computer/views/music.dart';
 import 'package:car_computer/views/settings.dart';
 import 'package:car_computer/widgets/navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import 'dart:convert';
+
 
 void main() {
   runApp(const MyApp());
@@ -28,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CarInfoProvider()),
         ChangeNotifierProvider(create: (context) => UiProvider()),
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
+        ChangeNotifierProvider(create: (context) => MusicProvider()),
       ],
       child: MaterialApp(
         title: 'Car Computer',
