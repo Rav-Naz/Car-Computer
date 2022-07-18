@@ -92,18 +92,21 @@ class _CarView extends State<CarView> {
                                                 fontWeight: FontWeight.w600))
                                       ],
                                     ),
-                                    Expanded(child: Container(
-                                      decoration: const BoxDecoration(),
-                                      clipBehavior: Clip.hardEdge,
-                                      child: Transform.scale(
-                                        scale: 1.01,
-                                        child: ColorFiltered(
-                                          colorFilter: ColorFilter.mode(uiProvider.accentColor, BlendMode.hue),
-                                          child: Stack(
-                                            children: [
-                                              Container(color: const Color.fromRGBO(65, 65, 65, 1)),
-                                              const Center(child: Image(image: AssetImage("assets/png/car.png",))),
-                                            ],
+                                    Expanded(child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Container(
+                                        decoration: const BoxDecoration(),
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Transform.scale(
+                                          scale: 1.015,
+                                          child: ColorFiltered(
+                                            colorFilter: ColorFilter.mode(uiProvider.accentColor, BlendMode.hue),
+                                            child: Stack(
+                                              children: [
+                                                Container(color: const Color.fromRGBO(65, 65, 65, 1)),
+                                                const Center(child: Image(image: AssetImage("assets/png/car.png",))),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),

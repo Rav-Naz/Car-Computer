@@ -44,7 +44,7 @@ class MyHomePage extends StatelessWidget {
 
   final List<NavigationItem> navigationItems = [
     NavigationItem(icon: Icons.home, view: const HomeView()),
-    NavigationItem(icon: Icons.navigation, view: const MapView()),
+    NavigationItem(icon: Icons.map, view: const MapView()),
     NavigationItem(icon: Icons.music_note, view: const MusicView()),
     NavigationItem(icon: Icons.settings, view: const SettingsView()),
   ];

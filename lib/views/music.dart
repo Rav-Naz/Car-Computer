@@ -17,8 +17,6 @@ class _MusicView extends State<MusicView> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        color: Colors.lime,
-      ),
+      child: Container(color: Colors.amber),
     );
   }}
