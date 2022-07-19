@@ -45,6 +45,9 @@ dependencies:
   just_audio: ^0.9.28
   just_audio_windows: ^0.1.0
   flutter_media_metadata: ^1.0.0+1
+  text_scroll: ^0.1.0
+  animated_flip_counter: ^0.2.4
+  http: ^0.13.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

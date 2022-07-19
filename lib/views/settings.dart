@@ -92,6 +92,11 @@ class _SettingsView extends State<SettingsView> {
                                   "Kelwin",
                                   "Farenheit"
                                 ])),
+                        SettingsItem(
+                            description: "Twoje imię",
+                            innerWidget: SettingsItemInput(
+                              description: "Twoje imię",
+                            )),
                       ],
                     ),
                   ),

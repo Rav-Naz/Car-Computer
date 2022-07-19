@@ -174,6 +174,8 @@ async def send_json_data():
     global debug_max_inputs
     iterations = 0
     # firewall to prevent too frequent sending of data
+    json_data["music_path"] = base_debug_file_path.replace("debug_data","audio")
+    json_data["refresh_delay"] = delay
     last_send_time = datetime.strptime(
         json_data["last_send"], '%Y-%m-%d %H:%M:%S.%f')
     time_diff_milis = (datetime.now() - last_send_time).total_seconds() * 1000

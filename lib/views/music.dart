@@ -4,6 +4,7 @@ import 'package:car_computer/widgets/container_gradient_border.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:text_scroll/text_scroll.dart';
 
 class MusicView extends StatefulWidget {
   const MusicView({Key? key}) : super(key: key);
@@ -85,7 +86,7 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
           setState(() {
             _currentPlaytimePosition = event;
             var mp = Provider.of<MusicProvider>(context, listen: false);
-            if(getTrackPercentageComplete == 1 && !mp.isLastTrack) {
+            if (getTrackPercentageComplete == 1 && !mp.isLastTrack) {
               mp.nextTrack();
             }
           });
@@ -112,29 +113,55 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    musicProvider.getCurrentTrack != null
-                        ? musicProvider.getCurrentTrack!.metadata.trackName ??
-                            ""
-                        : "",
-                    style: const TextStyle(
-                        color: Colors.white, fontSize: 20, height: 1),
-                  ),
-                  const SizedBox(width: 20),
-                  Text(
-                    musicProvider.getCurrentTrack != null
-                        ? musicProvider
-                            .getCurrentTrack!.metadata.trackArtistNames!
-                            .join(",")
-                        : "",
-                    style: const TextStyle(
-                        color: Colors.grey, fontSize: 16, height: 1),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Container(
+                    constraints:
+                        BoxConstraints(maxWidth: constraints.maxWidth * 0.9),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          constraints: BoxConstraints(
+                              maxWidth: constraints.maxWidth * 0.6),
+                          child: TextScroll(
+                            musicProvider.getCurrentTrack != null
+                                ? musicProvider
+                                        .getCurrentTrack!.metadata.trackName ??
+                                    ""
+                                : "",
+                            mode: TextScrollMode.bouncing,
+                            velocity:
+                                const Velocity(pixelsPerSecond: Offset(100, 0)),
+                            delayBefore: const Duration(milliseconds: 2000),
+                            pauseBetween: const Duration(milliseconds: 2000),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 20, height: 1),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Container(
+                            constraints: BoxConstraints(
+                                maxWidth: constraints.maxWidth * 0.3),
+                            child: TextScroll(
+                              musicProvider.getCurrentTrack != null
+                                  ? musicProvider.getCurrentTrack!.metadata
+                                      .trackArtistNames!
+                                      .join(",")
+                                  : "",
+                              mode: TextScrollMode.bouncing,
+                              velocity: const Velocity(
+                                  pixelsPerSecond: Offset(100, 0)),
+                              delayBefore: const Duration(milliseconds: 2000),
+                              pauseBetween: const Duration(milliseconds: 2000),
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 16, height: 1),
+                            ))
+                      ],
+                    ),
+                  );
+                },
               ),
               Visibility(
                 visible: musicProvider.getCurrentTrack != null,
@@ -143,7 +170,8 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
                     SizedBox(
                       width: 50,
                       child: Text(
-                        musicProvider.milisToTrackMinutes(_currentPlaytimePosition ?? Duration.zero),
+                        musicProvider.milisToTrackMinutes(
+                            _currentPlaytimePosition ?? Duration.zero),
                         style: TextStyle(
                             color: Provider.of<UiProvider>(context).accentColor,
                             fontWeight: FontWeight.bold),
@@ -161,15 +189,22 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
                           musicProvider.playAudio();
                         },
                         onChanged: (value) {
-                          musicProvider.rewindTrack(Duration(milliseconds: percetageToTrackDuration(value)));
+                          musicProvider.rewindTrack(Duration(
+                              milliseconds: percetageToTrackDuration(value)));
                         },
-                        activeColor: Provider.of<UiProvider>(context).accentColor,
-                        inactiveColor: Provider.of<UiProvider>(context).accentColor.withOpacity(0.2),
+                        activeColor:
+                            Provider.of<UiProvider>(context).accentColor,
+                        inactiveColor: Provider.of<UiProvider>(context)
+                            .accentColor
+                            .withOpacity(0.2),
                       ),
                     ),
                     SizedBox(
-                      width: 50,
-                      child: Text(musicProvider.milisToTrackMinutes(_maxPlaytimePosition ?? Duration.zero), style: const TextStyle(color: Colors.grey)))
+                        width: 50,
+                        child: Text(
+                            musicProvider.milisToTrackMinutes(
+                                _maxPlaytimePosition ?? Duration.zero),
+                            style: const TextStyle(color: Colors.grey)))
                   ],
                 ),
               ),
@@ -181,14 +216,16 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: IconButton(
                         iconSize: 30,
-                        onPressed: musicProvider.isFirstTrack || musicProvider.getCurrentTrack == null
+                        onPressed: musicProvider.isFirstTrack ||
+                                musicProvider.getCurrentTrack == null
                             ? null
                             : () {
                                 musicProvider.previousTrack();
                               },
                         icon: Icon(
                           Icons.skip_previous,
-                          color: musicProvider.isFirstTrack || musicProvider.getCurrentTrack == null
+                          color: musicProvider.isFirstTrack ||
+                                  musicProvider.getCurrentTrack == null
                               ? Colors.grey
                               : Colors.white,
                         )),
@@ -208,19 +245,23 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
                             _playerState != null && _playerState!.playing
                                 ? Icons.pause_circle
                                 : Icons.play_circle,
-                            color: musicProvider.getCurrentTrack == null ? Colors.grey : Colors.white)),
+                            color: musicProvider.getCurrentTrack == null
+                                ? Colors.grey
+                                : Colors.white)),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: IconButton(
                         iconSize: 30,
-                        onPressed: musicProvider.isLastTrack || musicProvider.getCurrentTrack == null
+                        onPressed: musicProvider.isLastTrack ||
+                                musicProvider.getCurrentTrack == null
                             ? null
                             : () {
                                 musicProvider.nextTrack();
                               },
                         icon: Icon(Icons.skip_next,
-                            color: musicProvider.isLastTrack || musicProvider.getCurrentTrack == null
+                            color: musicProvider.isLastTrack ||
+                                    musicProvider.getCurrentTrack == null
                                 ? Colors.grey
                                 : Colors.white)),
                   )
@@ -232,8 +273,15 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
   }
 
   double get getTrackPercentageComplete {
-    if (_currentPlaytimePosition != null && _maxPlaytimePosition != null && _currentPlaytimePosition != Duration.zero && _maxPlaytimePosition != Duration.zero) {
-      return ((_currentPlaytimePosition!.inMicroseconds/_maxPlaytimePosition!.inMicroseconds)*1000).toInt()/1000;
+    if (_currentPlaytimePosition != null &&
+        _maxPlaytimePosition != null &&
+        _currentPlaytimePosition != Duration.zero &&
+        _maxPlaytimePosition != Duration.zero) {
+      return ((_currentPlaytimePosition!.inMicroseconds /
+                      _maxPlaytimePosition!.inMicroseconds) *
+                  1000)
+              .toInt() /
+          1000;
     } else {
       return 0;
     }
@@ -241,8 +289,10 @@ class _MusicTrackPanelState extends State<MusicTrackPanel> {
 
   int percetageToTrackDuration(double percentage) {
     if (_maxPlaytimePosition != null) {
-      return (_maxPlaytimePosition!.inMilliseconds*percentage).toInt();
-    } else {return 0;}
+      return (_maxPlaytimePosition!.inMilliseconds * percentage).toInt();
+    } else {
+      return 0;
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:car_computer/providers/car_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:just_audio/just_audio.dart';
@@ -8,13 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MusicProvider extends ChangeNotifier {
   final _player = AudioPlayer();
-  Directory dir = Directory('C:/Users/rafal/Desktop/car_computer_audio/');
+  late Directory dir;
   final List<MusicTrack> _musicList = [];
   MusicTrack? _currentTrack;
   late SharedPreferences _preferences;
+  final CarInfoProvider carInfoProvider;
   // AudioSource? _playlist;
 
-  MusicProvider() {
+  MusicProvider({required this.carInfoProvider}) {
+    dir = Directory((carInfoProvider.getPathToMusic ?? "E:/audio") +"/");
     setup();
   }
 

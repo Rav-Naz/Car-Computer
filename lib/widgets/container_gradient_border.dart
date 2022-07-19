@@ -6,9 +6,10 @@ class ContainerGradientBorder extends StatelessWidget {
   final Widget? innerWidget;
   final String? description;
   final Color? descriptionColor;
+  final EdgeInsets? padding;
 
   ContainerGradientBorder(
-      {this.innerWidget, this.description, this.descriptionColor});
+      {this.innerWidget, this.description, this.descriptionColor, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +18,12 @@ class ContainerGradientBorder extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Text(description ?? "", style: TextStyle(color: descriptionColor ?? Colors.grey, fontSize: 12, fontWeight: FontWeight.w600),),
+              Visibility(
+                visible: description != null,
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Text(description ?? "", style: TextStyle(color: descriptionColor ?? Colors.grey, fontSize: 12, fontWeight: FontWeight.w600),),
+                ),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -44,7 +48,7 @@ class ContainerGradientBorder extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: Container(
-                    padding: EdgeInsets.all(8),
+                    padding: padding ??  const EdgeInsets.all(8),
                     child: innerWidget,
                     constraints: const BoxConstraints(minHeight: 30, minWidth: 30),
                     decoration: BoxDecoration(

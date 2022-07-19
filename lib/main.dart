@@ -23,10 +23,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => CarInfoProvider()),
-        ChangeNotifierProvider(create: (context) => UiProvider()),
-        ChangeNotifierProvider(create: (context) => NavigationProvider()),
-        ChangeNotifierProvider(create: (context) => MusicProvider()),
+        ChangeNotifierProvider<CarInfoProvider>(create: (BuildContext context) => CarInfoProvider()),
+        ChangeNotifierProvider<UiProvider>(create: (BuildContext context) => UiProvider()),
+        ChangeNotifierProvider<NavigationProvider>(create: (BuildContext context) => NavigationProvider()),
+        ChangeNotifierProxyProvider<CarInfoProvider, MusicProvider>(
+        create: (BuildContext context) => MusicProvider(carInfoProvider: Provider.of<CarInfoProvider>(context, listen: false)),
+        update: (BuildContext context, CarInfoProvider carInfoProvider, MusicProvider? musicProvider) => musicProvider!),
       ],
       child: MaterialApp(
         title: 'Car Computer',
@@ -83,17 +85,22 @@ class TopInfoBar extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    var carInfoProvider = Provider.of<CarInfoProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [
-        Text("19°C", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12),),
-        Text(Provider.of<CarInfoProvider>(context).getCurrentTimeString, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),),
-        Row(
-          children: const [
-            Icon(Icons.signal_cellular_alt, size: 15, color: Colors.grey,),
-            SizedBox(width: 10,),
-            Icon(Icons.bluetooth_connected, size: 15, color: Colors.grey,)
-          ],
+        SizedBox(width: MediaQuery.of(context).size.width*0.25,child: Text((carInfoProvider.getWeatherInfo != null ? (carInfoProvider.getWeatherInfo["main"]["temp"] as double).toStringAsFixed(1) + " °C    " +  carInfoProvider.getWeatherInfo["name"]: " --°C"), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600, fontSize: 12),)),
+        Text(carInfoProvider.getCurrentTimeString, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),),
+        SizedBox(
+          width: MediaQuery.of(context).size.width*0.25,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const Icon(Icons.signal_cellular_alt, size: 15, color: Colors.grey,),
+              const SizedBox(width: 10,),
+              Icon (carInfoProvider.isConnectedToCar ? Icons.bluetooth_connected : Icons.bluetooth_disabled, size: 15, color: Colors.grey,)
+            ],
+          ),
         )
       ]),
     );

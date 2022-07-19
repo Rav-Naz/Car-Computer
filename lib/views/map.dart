@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
+
+import '../providers/car_info_provider.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -12,9 +15,32 @@ class MapView extends StatefulWidget {
 }
 
 class _MapView extends State<MapView> {
+  LatLng? _lastLatLong;
+  double? _rotationAngle;
   @override
   void initState() {
     super.initState();
+  }
+
+  double getAngle(LatLng newLatlong) {
+    if (_lastLatLong != null) {
+      var w = newLatlong.latitude - _lastLatLong!.latitude;
+      var h = newLatlong.longitude - _lastLatLong!.longitude;
+      var atans = atan((h / w)) / pi * 180;
+      if (w < 0 || h < 0) {
+        atans += 180;
+      }
+      if (w > 0 && h < 0) {
+        atans -= 180;
+      }
+      if (atans < 0) {
+        atans += 360;
+      }
+      // print(atans);
+      return atans % 360;
+    } else {
+      return 0;
+    }
   }
 
   @override
@@ -44,21 +70,45 @@ class _MapView extends State<MapView> {
             padding: const EdgeInsets.all(4.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
-              child: FlutterMap(
-                options: MapOptions(center: LatLng(50.007867, 21.998181)),
-                layers: [
-                  TileLayerOptions(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: [
-                    Marker(
-                        width: 20,
-                        height: 48,
-                        builder: (context) => CarMarker(angle: 0),
-                        point: LatLng(50.007867, 21.998181))
-                  ])
-                ],
+              child: Consumer<CarInfoProvider>(
+                builder: (context, carInfoProvider, child) {
+                  var latlong = LatLng(
+                      double.parse(carInfoProvider.getCarInfoValue("latitude")),
+                      double.parse(
+                          carInfoProvider.getCarInfoValue("longitude")));
+                  if (_lastLatLong != null && _lastLatLong != latlong) {
+                    var w = latlong.latitude - _lastLatLong!.latitude;
+                    var h = latlong.longitude - _lastLatLong!.longitude;
+                    var atans = atan((h / w)) / pi * 180;
+                    if (w < 0 || h < 0) {
+                      atans += 180;
+                    }
+                    if (w > 0 && h < 0) {
+                      atans -= 180;
+                    }
+                    if (atans < 0) {
+                      atans += 360;
+                    }
+                    _rotationAngle = atans % 360;
+                  }
+                  _lastLatLong = latlong;
+                  return FlutterMap(
+                    options: MapOptions(center: latlong, maxZoom: 18),
+                    layers: [
+                      TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c']),
+                      MarkerLayerOptions(markers: [
+                        Marker(
+                            width: 20,
+                            height: 48,
+                            builder: (context) => CarMarker(angle: _rotationAngle),
+                            point: latlong)
+                      ])
+                    ],
+                  );
+                },
               ),
             ),
           )),
@@ -67,13 +117,14 @@ class _MapView extends State<MapView> {
 }
 
 class CarMarker extends StatelessWidget {
-  final double angle;
+  final double? angle;
   CarMarker({required this.angle});
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: angle,
+    return AnimatedRotation(
+      turns: angle != null?(angle!/360) : 0,
+      duration: const Duration(milliseconds: 500),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(500),
         child: ColorFiltered(
