@@ -48,6 +48,8 @@ dependencies:
   text_scroll: ^0.1.0
   animated_flip_counter: ^0.2.4
   http: ^0.13.4
+  carousel_slider: ^4.1.1
+  url_launcher: ^6.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -43,7 +43,7 @@ class UiProvider extends ChangeNotifier {
         _news = jsonDecode(_preferences.getString("news")!);
         var lastDownload =  DateTime.parse(_news!["downloaded"]);
         notifyListeners();
-        if (lastDownload.difference(DateTime.now()).inHours > 1) {
+        if (DateTime.now().difference(lastDownload).inHours > 1) {
           _getNews();
         }
       } else {
@@ -85,6 +85,16 @@ class UiProvider extends ChangeNotifier {
 
     get getNews {
     return _news;
+  }
+
+  List<dynamic>get getTopNews {
+    if(_news != null) {
+      var articles = Map.from(_news!)["articles"] as List<dynamic>;
+      articles.removeWhere((element) => element["urlToImage"] == null);
+      return articles;
+    } else {
+      return [];
+    }
   }
 
   dynamic getSetting(String key) {

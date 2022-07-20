@@ -22,27 +22,6 @@ class _MapView extends State<MapView> {
     super.initState();
   }
 
-  double getAngle(LatLng newLatlong) {
-    if (_lastLatLong != null) {
-      var w = newLatlong.latitude - _lastLatLong!.latitude;
-      var h = newLatlong.longitude - _lastLatLong!.longitude;
-      var atans = atan((h / w)) / pi * 180;
-      if (w < 0 || h < 0) {
-        atans += 180;
-      }
-      if (w > 0 && h < 0) {
-        atans -= 180;
-      }
-      if (atans < 0) {
-        atans += 360;
-      }
-      // print(atans);
-      return atans % 360;
-    } else {
-      return 0;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -77,19 +56,23 @@ class _MapView extends State<MapView> {
                       double.parse(
                           carInfoProvider.getCarInfoValue("longitude")));
                   if (_lastLatLong != null && _lastLatLong != latlong) {
-                    var w = latlong.latitude - _lastLatLong!.latitude;
-                    var h = latlong.longitude - _lastLatLong!.longitude;
-                    var atans = atan((h / w)) / pi * 180;
-                    if (w < 0 || h < 0) {
-                      atans += 180;
+                    var speed = Provider.of<CarInfoProvider>(context)
+                        .getCarInfoValue("vehicle_speed");
+                    if (speed != null && speed >= 1) {
+                      var w = latlong.latitude - _lastLatLong!.latitude;
+                      var h = latlong.longitude - _lastLatLong!.longitude;
+                      var atans = atan((h / w)) / pi * 180;
+                      if (w < 0 || h < 0) {
+                        atans += 180;
+                      }
+                      if (w > 0 && h < 0) {
+                        atans -= 180;
+                      }
+                      if (atans < 0) {
+                        atans += 360;
+                      }
+                      _rotationAngle = atans % 360;
                     }
-                    if (w > 0 && h < 0) {
-                      atans -= 180;
-                    }
-                    if (atans < 0) {
-                      atans += 360;
-                    }
-                    _rotationAngle = atans % 360;
                   }
                   _lastLatLong = latlong;
                   return FlutterMap(
@@ -103,7 +86,8 @@ class _MapView extends State<MapView> {
                         Marker(
                             width: 20,
                             height: 48,
-                            builder: (context) => CarMarker(angle: _rotationAngle),
+                            builder: (context) =>
+                                CarMarker(angle: _rotationAngle),
                             point: latlong)
                       ])
                     ],
@@ -123,7 +107,7 @@ class CarMarker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedRotation(
-      turns: angle != null?(angle!/360) : 0,
+      turns: angle != null ? (angle! / 360) : 0,
       duration: const Duration(milliseconds: 500),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(500),
