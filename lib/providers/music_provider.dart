@@ -51,6 +51,11 @@ class MusicProvider extends ChangeNotifier {
       } else {
         _currentTrack = _musicList[0];
       }
+      if (_preferences.containsKey("volume")) {
+        _player.setVolume(_preferences.getDouble("volume")!);
+      } else {
+      _player.setVolume(0.5);
+      }
     });
     _player.positionStream.listen((event) {
       if (_currentTrack != null && event != Duration.zero) {
@@ -67,7 +72,6 @@ class MusicProvider extends ChangeNotifier {
       _player.seek(Duration(milliseconds: loadStored));
     }
     notifyListeners();
-    _player.setVolume(0.05);
   }
 
   void playAudio() async {
@@ -116,6 +120,12 @@ class MusicProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setVolume(double volume) async {
+    _preferences.setDouble("volume", volume);
+    await _player.setVolume(volume);
+  }
+
+
   int trackListIndex(MusicTrack track) {
     return _musicList.indexOf(track);
   }
@@ -130,6 +140,10 @@ class MusicProvider extends ChangeNotifier {
 
   MusicTrack? get getCurrentTrack {
     return _currentTrack;
+  }
+
+  Stream<double> get getVolumeStream {
+    return _player.volumeStream;
   }
 
   bool get isFirstTrack {
