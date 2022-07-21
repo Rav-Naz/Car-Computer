@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -22,7 +21,7 @@ class UiProvider extends ChangeNotifier {
     "moc_silnika": "360",
     "pojemność_skokowa_silnika": "1998",
     "maksymalne_obroty": "7000",
-    "data_ważności_przeglądu": "04-02-2023",
+    "data_ważności_przeglądu": "2023-02-27",
     "twoje_imię": "Rafał"
   };
 

@@ -2,7 +2,6 @@ import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:car_computer/providers/car_info_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +13,6 @@ class CarView extends StatefulWidget {
 }
 
 class _CarView extends State<CarView> {
-
   @override
   void initState() {
     super.initState();
@@ -25,8 +23,8 @@ class _CarView extends State<CarView> {
     return Consumer<UiProvider>(
       builder: ((context, uiProvider, child) {
         return Consumer<CarInfoProvider>(
-          builder: (context, carInfoProvider, child) {
-            return Container(
+            builder: (context, carInfoProvider, child) {
+          return Container(
             color: const Color.fromRGBO(65, 65, 65, 1),
             child: Padding(
               padding: const EdgeInsets.only(right: 20),
@@ -44,9 +42,12 @@ class _CarView extends State<CarView> {
                           color: uiProvider.accentColor,
                           icon: Icons.speed,
                           top: true,
-                          value1: carInfoProvider.getCarInfoValue('engine_rpm') ?? 0,
+                          value1:
+                              carInfoProvider.getCarInfoValue('engine_rpm') ??
+                                  0,
                           suffix1: " r/min",
-                          maxValue1: double.parse(uiProvider.getSetting("maksymalne_obroty")),
+                          maxValue1: double.parse(
+                              uiProvider.getSetting("maksymalne_obroty")),
                         ),
                         Expanded(
                             child: Column(
@@ -79,9 +80,9 @@ class _CarView extends State<CarView> {
                                         IndicatorLightIcon(
                                             svgAssetPath:
                                                 'assets/svg/road_lights.svg',
-                                            colorOn: const Color.fromARGB(
-                                                255, 15, 62, 214)),
+                                            colorOn: const Color.fromARGB(255, 15, 78, 214)),
                                         IndicatorLightIcon(
+                                            isOn: true,
                                             svgAssetPath:
                                                 'assets/svg/traffic_light.svg',
                                             colorOn: const Color.fromARGB(
@@ -97,7 +98,10 @@ class _CarView extends State<CarView> {
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
                                               AnimatedFlipCounter(
-                                                value: carInfoProvider.getCarInfoValue("vehicle_speed") ?? 0,
+                                                  value: carInfoProvider
+                                                          .getCarInfoValue(
+                                                              "vehicle_speed") ??
+                                                      0,
                                                   textStyle: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 40,
@@ -157,10 +161,10 @@ class _CarView extends State<CarView> {
                                             colorOn: const Color.fromARGB(
                                                 255, 250, 200, 36)),
                                         IndicatorLightIcon(
+                                            isOn: true,
                                             svgAssetPath:
                                                 'assets/svg/coolant.svg',
-                                            colorOn: const Color.fromARGB(
-                                                255, 15, 62, 214)),
+                                            colorOn: const Color.fromARGB(255, 15, 78, 214)),
                                         IndicatorLightIcon(
                                             svgAssetPath:
                                                 'assets/svg/accumulator.svg',
@@ -178,14 +182,17 @@ class _CarView extends State<CarView> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 10, 20, 15),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   BottomCarInfoWidget(
                                       description: "Śr. prędkość",
-                                      value: carInfoProvider.getAverageSpeedString,
+                                      value:
+                                          carInfoProvider.getAverageSpeedString,
                                       unit: "KM/H"),
                                   Container(
                                     color: Colors.grey.withOpacity(0.5),
@@ -194,7 +201,8 @@ class _CarView extends State<CarView> {
                                   ),
                                   BottomCarInfoWidget(
                                       description: "Pok. dystans",
-                                      value: carInfoProvider.getDistanceTraveledInKm,
+                                      value: carInfoProvider
+                                          .getDistanceTraveledInKm,
                                       unit: "KM"),
                                   Container(
                                     color: Colors.grey.withOpacity(0.5),
@@ -203,7 +211,8 @@ class _CarView extends State<CarView> {
                                   ),
                                   BottomCarInfoWidget(
                                       description: "Czas jazdy",
-                                      value: carInfoProvider.getTimeFromStartString,
+                                      value: carInfoProvider
+                                          .getTimeFromStartString,
                                       unit: "GODZIN")
                                 ],
                               ),
@@ -243,8 +252,7 @@ class _CarView extends State<CarView> {
               ),
             ),
           );
-          }
-        );
+        });
       }),
     );
   }
@@ -267,7 +275,9 @@ class IndicatorLightWidget extends StatelessWidget {
               width: 30,
               height: 30,
               child: SvgPicture.asset(e.svgAssetPath,
-                  color: const Color.fromARGB(255, 28, 28, 28))))
+                  color: e.isOn != null && e.isOn!
+                      ? e.colorOn
+                      : const Color.fromARGB(255, 28, 28, 28))))
           .toList(),
     );
   }
@@ -276,11 +286,10 @@ class IndicatorLightWidget extends StatelessWidget {
 class IndicatorLightIcon {
   final String svgAssetPath;
   final Color colorOn;
+  final bool? isOn;
 
-  IndicatorLightIcon({
-    required this.svgAssetPath,
-    required this.colorOn,
-  });
+  IndicatorLightIcon(
+      {required this.svgAssetPath, required this.colorOn, this.isOn});
 }
 
 class BottomCarInfoWidget extends StatelessWidget {
@@ -297,23 +306,35 @@ class BottomCarInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(description,
-            style: const TextStyle(color: Colors.grey, fontSize: 10)),
-        Padding(
-            padding: const EdgeInsets.all(5),
-            child: Text(value,
+    return SizedBox(
+      width: 75,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            description,
+            style: const TextStyle(color: Colors.grey, fontSize: 10),
+            textAlign: TextAlign.center,
+          ),
+          Padding(
+              padding: const EdgeInsets.all(5),
+              child: Text(
+                value,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
-                    fontWeight: FontWeight.bold))),
-        Text(unit,
+                    fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              )),
+          Text(
+            unit,
             style: const TextStyle(
-                color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600))
-      ],
+                color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+          )
+        ],
+      ),
     );
   }
 }
@@ -386,11 +407,11 @@ class SliderContainerWidget extends StatelessWidget {
             Visibility(
                 visible: value2 != null,
                 child: Text(
-                   value2.toString() + (suffix2 ?? ""),style: const TextStyle(
+                  value2.toString() + (suffix2 ?? ""),
+                  style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.w600),
                 )),
-            Text(
-              value1.toStringAsFixed(0) + (suffix1 ?? ""),
+            Text(value1.toStringAsFixed(0) + (suffix1 ?? ""),
                 style: const TextStyle(
                     color: Colors.white, fontWeight: FontWeight.w600)),
           ],
@@ -408,7 +429,7 @@ class SliderContainerWidget extends StatelessWidget {
                 ],
                 stops: [
                   percentageValue,
-                  percentageValue+0.01
+                  percentageValue + 0.01
                 ])),
         height: 4,
       )
@@ -417,7 +438,7 @@ class SliderContainerWidget extends StatelessWidget {
   }
 
   double get percentageValue {
-    return ((value1/maxValue1)*100).toInt()/100;
+    return ((value1 / maxValue1) * 100).toInt() / 100;
   }
 }
 

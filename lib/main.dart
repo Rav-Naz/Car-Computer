@@ -3,6 +3,7 @@ import 'package:car_computer/providers/music_provider.dart';
 import 'package:car_computer/providers/navigation_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
+import 'package:car_computer/views/car_info.dart';
 import 'package:car_computer/views/home.dart';
 import 'package:car_computer/views/map.dart';
 import 'package:car_computer/views/music.dart';
@@ -47,6 +48,7 @@ class MyHomePage extends StatelessWidget {
     NavigationItem(icon: Icons.home, view: const HomeView()),
     NavigationItem(icon: Icons.map, view: const MapView()),
     NavigationItem(icon: Icons.music_note, view: const MusicView()),
+    NavigationItem(icon: Icons.directions_car, view: const CarInfoView()),
     NavigationItem(icon: Icons.settings, view: const SettingsView()),
   ];
 
