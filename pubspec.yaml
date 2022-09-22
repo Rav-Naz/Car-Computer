@@ -42,7 +42,6 @@ dependencies:
   intl: ^0.17.0
   flutter_map: ^2.0.0
   latlong2: ^0.8.1
-  flutter_media_metadata: ^1.0.0+1
   text_scroll: ^0.1.0
   animated_flip_counter: ^0.2.4
   http: ^0.13.4

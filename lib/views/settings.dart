@@ -27,129 +27,127 @@ class _SettingsView extends State<SettingsView> {
         padding: const EdgeInsets.only(right: 10),
           color: const Color.fromRGBO(65, 65, 65, 1),
           child: SingleChildScrollView(
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: ContainerGradientBorder(
-                  description: "Ustawienia interfejsu",
-                  innerWidget: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      children: [
-                        SettingsItem(
-                            description: "Kolor interfejsu",
-                            innerWidget: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                            actions: [
-                                              TextButton(
-                                                child: Text(
-                                                  "Zamknij",
-                                                  style: TextStyle(
-                                                      color:
-                                                          uiProvider.accentColor),
-                                                ),
-                                                onPressed: () =>
-                                                    {Navigator.of(context).pop()},
-                                              )
-                                            ],
-                                            backgroundColor: const Color.fromRGBO(
-                                                65, 65, 65, 1),
-                                            content: BlockPicker(
-                                              pickerColor: uiProvider.accentColor,
-                                              onColorChanged: (color) {
-                                                uiProvider.setColor(color);
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          ));
-                                },
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                        color: uiProvider.accentColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: Colors.white, width: 2))),
-                              ),
-                            )),
-                        SettingsItem(
-                            description: "Jednostka miary",
-                            innerWidget: SettingsItemChooser(
-                                description: "Jednostka miary",
-                                options: const ["Kilometry", "Mile"])),
-                        SettingsItem(
-                            description: "Jednostka temperatury",
-                            innerWidget: SettingsItemChooser(
-                                description: "Jednostka temperatury",
-                                options: const [
-                                  "Celsjusz",
-                                  "Kelwin",
-                                  "Farenheit"
-                                ])),
-                        SettingsItem(
+                ContainerGradientBorder(
+                description: "Ustawienia interfejsu",
+                innerWidget: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    children: [
+                      SettingsItem(
+                          description: "Kolor interfejsu",
+                          innerWidget: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          actions: [
+                                            TextButton(
+                                              child: Text(
+                                                "Zamknij",
+                                                style: TextStyle(
+                                                    color:
+                                                        uiProvider.accentColor),
+                                              ),
+                                              onPressed: () =>
+                                                  {Navigator.of(context).pop()},
+                                            )
+                                          ],
+                                          backgroundColor: const Color.fromRGBO(
+                                              65, 65, 65, 1),
+                                          content: BlockPicker(
+                                            pickerColor: uiProvider.accentColor,
+                                            onColorChanged: (color) {
+                                              uiProvider.setColor(color);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ));
+                              },
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      color: uiProvider.accentColor,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: Colors.white, width: 2))),
+                            ),
+                          )),
+                      SettingsItem(
+                          description: "Jednostka miary",
+                          innerWidget: SettingsItemChooser(
+                              description: "Jednostka miary",
+                              options: const ["Kilometry", "Mile"])),
+                      SettingsItem(
+                          description: "Jednostka temperatury",
+                          innerWidget: SettingsItemChooser(
+                              description: "Jednostka temperatury",
+                              options: const [
+                                "Celsjusz",
+                                "Kelwin",
+                                "Farenheit"
+                              ])),
+                      SettingsItem(
+                          description: "Twoje imię",
+                          innerWidget: SettingsItemInput(
                             description: "Twoje imię",
-                            innerWidget: SettingsItemInput(
-                              description: "Twoje imię",
-                            )),
-                      ],
-                    ),
+                          )),
+                    ],
                   ),
-                )),
-                Expanded(
-                    child: ContainerGradientBorder(
+                ),
+                ),
+                ContainerGradientBorder(
                   description: "Ustawienia samochodu",
                   innerWidget: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      children: [
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    SettingsItem(
+                        description: "Marka i model pojazdu",
+                        innerWidget: SettingsItemInput(
+                          description: "Marka i model pojazdu",
+                        )),
+                    SettingsItem(
+                        description: "Rok produkcji",
+                        innerWidget: SettingsItemInput(
+                          description: "Rok produkcji",
+                        )),
+                    SettingsItem(
+                        description: "Moc silnika",
+                        innerWidget: SettingsItemInput(
+                          description: "Moc silnika",
+                          suffix: "KM",
+                        )),
                         SettingsItem(
-                            description: "Marka i model pojazdu",
-                            innerWidget: SettingsItemInput(
-                              description: "Marka i model pojazdu",
-                            )),
-                        SettingsItem(
-                            description: "Rok produkcji",
-                            innerWidget: SettingsItemInput(
-                              description: "Rok produkcji",
-                            )),
-                        SettingsItem(
-                            description: "Moc silnika",
-                            innerWidget: SettingsItemInput(
-                              description: "Moc silnika",
-                              suffix: "KM",
-                            )),
-                            SettingsItem(
+                        description: "Rodzaj paliwa",
+                        innerWidget: SettingsItemChooser(
                             description: "Rodzaj paliwa",
-                            innerWidget: SettingsItemChooser(
-                                description: "Rodzaj paliwa",
-                                options: const ["Benzyna", "Diesel", "Hybrydowy", "Elektryczny"])),
-                        SettingsItem(
-                            description: "Pojemność skokowa silnika",
-                            innerWidget: SettingsItemInput(
-                              description: "Pojemność skokowa silnika",
-                              suffix: "cm³",
-                            )),
-                        SettingsItem(
-                            description: "Maksymalne obroty",
-                            innerWidget: SettingsItemInput(
-                              description: "Maksymalne obroty",
-                              suffix: "r/min",
-                            )),
-                        SettingsItem(
-                            description: "Data ważności przeglądu",
-                            innerWidget: SettingsItemInput(
-                              description: "Data ważności przeglądu",
-                            )),
-                      ],
-                    ),
+                            options: const ["Benzyna", "Diesel", "Hybrydowy", "Elektryczny"])),
+                    SettingsItem(
+                        description: "Pojemność skokowa silnika",
+                        innerWidget: SettingsItemInput(
+                          description: "Pojemność skokowa silnika",
+                          suffix: "cm³",
+                        )),
+                    SettingsItem(
+                        description: "Maksymalne obroty",
+                        innerWidget: SettingsItemInput(
+                          description: "Maksymalne obroty",
+                          suffix: "r/min",
+                        )),
+                    SettingsItem(
+                        description: "Data ważności przeglądu",
+                        innerWidget: SettingsItemInput(
+                          description: "Data ważności przeglądu",
+                        )),
+                  ],
+                ),
                   ),
-                )),
+                ),
               ],
             ),
           )),

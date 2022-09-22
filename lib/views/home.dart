@@ -110,7 +110,7 @@ class _HomeView extends State<HomeView> {
                                                           : "-- °C",
                                                       style: const TextStyle(
                                                           color: Colors.white,
-                                                          fontSize: 50,
+                                                          fontSize: 30,
                                                           fontWeight:
                                                               FontWeight.bold),
                                                     ),
