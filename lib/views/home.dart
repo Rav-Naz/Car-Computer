@@ -1,6 +1,5 @@
 import 'package:car_computer/providers/car_info_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
-import 'package:car_computer/views/music.dart';
 import 'package:car_computer/widgets/container_gradient_border.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -248,7 +247,6 @@ class _HomeView extends State<HomeView> {
               ],
             ),
           ),
-          const MusicTrackPanel()
         ],
       ),
     ));

@@ -1,12 +1,10 @@
 import 'package:car_computer/providers/car_info_provider.dart';
-import 'package:car_computer/providers/music_provider.dart';
 import 'package:car_computer/providers/navigation_provider.dart';
 import 'package:car_computer/providers/ui_provider.dart';
 import 'package:car_computer/views/car.dart';
 import 'package:car_computer/views/car_info.dart';
 import 'package:car_computer/views/home.dart';
 import 'package:car_computer/views/map.dart';
-import 'package:car_computer/views/music.dart';
 import 'package:car_computer/views/settings.dart';
 import 'package:car_computer/widgets/navigation.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +24,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<CarInfoProvider>(create: (BuildContext context) => CarInfoProvider()),
         ChangeNotifierProvider<UiProvider>(create: (BuildContext context) => UiProvider()),
-        ChangeNotifierProvider<NavigationProvider>(create: (BuildContext context) => NavigationProvider()),
-        ChangeNotifierProxyProvider<CarInfoProvider, MusicProvider>(
-        create: (BuildContext context) => MusicProvider(carInfoProvider: Provider.of<CarInfoProvider>(context, listen: false)),
-        update: (BuildContext context, CarInfoProvider carInfoProvider, MusicProvider? musicProvider) => musicProvider!),
+        ChangeNotifierProvider<NavigationProvider>(create: (BuildContext context) => NavigationProvider())
       ],
       child: MaterialApp(
         title: 'Car Computer',
@@ -47,7 +42,6 @@ class MyHomePage extends StatelessWidget {
   final List<NavigationItem> navigationItems = [
     NavigationItem(icon: Icons.home, view: const HomeView()),
     NavigationItem(icon: Icons.map, view: const MapView()),
-    NavigationItem(icon: Icons.music_note, view: const MusicView()),
     NavigationItem(icon: Icons.directions_car, view: const CarInfoView()),
     NavigationItem(icon: Icons.settings, view: const SettingsView()),
   ];
